@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>KUBUMIX FAMILY</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <style>
+        :root { 
+            --pink: #ff007f; 
+            --bg: #0f1218; 
+            --tg-dark: #181c26; 
+            --my-msg: #2d1a26; 
+            --other-msg: #212630;
+            --text: #ffffff; 
+            --dim: #8a8d91; 
+        }
+        
+        * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+        
+        body { 
+            margin: 0; 
+            background: var(--bg); 
+            background-image: radial-gradient(circle at top right, #1a1a2e, #0f1218);
+            color: var(--text); 
+            font-family: 'Roboto', sans-serif; 
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .russo { font-family: 'Russo One', sans-serif; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        /* HEADER */
+        header { 
+            background: rgba(24, 28, 38, 0.95); 
+            backdrop-filter: blur(10px);
+            height: 60px; 
+            display: flex; 
+            flex-direction: column;
+            align-items: center; 
+            justify-content: center;
+            border-bottom: 1px solid rgba(255, 0, 127, 0.2); 
+            position: fixed; top: 0; width: 100%; z-index: 1000;
+        }
+        .header-status { font-size: 10px; color: var(--pink); margin-top: 2px; opacity: 0.8; }
+
+        /* AUTH GATE */
+        #auth-gate { position: fixed; inset: 0; background: var(--bg); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .auth-card { background: var(--tg-dark); width: 100%; max-width: 320px; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #2b2d3c; }
+
+        /* CHAT AREA */
+        .app-content { 
+            flex: 1; 
+            overflow-y: auto; 
+            padding: 75px 10px 100px; 
+            display: flex; 
+            flex-direction: column;
+            gap: 12px;
+            max-width: 600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* MESSAGE BUBBLES */
+        .post { 
+            max-width: 85%; 
+            padding: 10px 14px; 
+            border-radius: 18px; 
+            position: relative; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .my-post { align-self: flex-end; background: var(--my-msg); border-bottom-right-radius: 4px; border: 1px solid rgba(255, 0, 127, 0.2); }
+        .other-post { align-self: flex-start; background: var(--other-post); border-bottom-left-radius: 4px; background: var(--other-msg); }
+
+        .post-author { font-size: 12px; font-weight: 500; color: var(--pink); margin-bottom: 4px; }
+        .post-text { font-size: 15px; line-height: 1.4; word-wrap: break-word; }
+        .post-img { width: 100%; border-radius: 12px; margin-top: 8px; display: block; border: 1px solid rgba(0,0,0,0.2); }
+
+        .post-footer { display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin-top: 5px; opacity: 0.7; font-size: 10px; }
+        .btn-del { color: #ff4444; background: none; border: none; cursor: pointer; padding: 0; font-size: 10px; }
+
+        /* INPUT AREA (TELEGRAM STYLE) */
+        .input-area { 
+            position: fixed; bottom: 0; width: 100%; 
+            background: var(--tg-dark); padding: 10px 15px 25px; 
+            display: flex; align-items: flex-end; gap: 10px; 
+            border-top: 1px solid #282c34; z-index: 1000;
+        }
+        .input-container { 
+            background: #000; flex: 1; border-radius: 22px; 
+            padding: 5px 15px; display: flex; align-items: flex-end; 
+            border: 1px solid #333;
+        }
+        .v-input { 
+            flex: 1; background: none; border: none; color: #fff; 
+            padding: 10px 0; font-size: 15px; outline: none; 
+            max-height: 120px; resize: none;
+        }
+        .attach-btn { color: var(--pink); font-size: 24px; padding: 5px; cursor: pointer; }
+        .send-btn-circle { 
+            background: var(--pink); width: 45px; height: 45px; 
+            border-radius: 50%; display: flex; align-items: center; 
+            justify-content: center; color: white; border: none; cursor: pointer;
+            box-shadow: 0 2px 8px var(--pink);
+        }
+
+        .photo-preview-container { 
+            position: absolute; bottom: 85px; left: 15px; right: 15px; 
+            background: var(--tg-dark); border-radius: 12px; padding: 5px; display: none;
+            border: 1px solid var(--pink);
+        }
+        .preview-img { width: 60px; height: 60px; object-fit: cover; border-radius: 8px; }
+
+        .hidden { display: none !important; }
+        #loading { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 5000; color: var(--pink); }
+    </style>
+</head>
+<body>
+
+<div id="loading" class="russo">СИНХРОНІЗАЦІЯ...</div>
+
+<div id="auth-gate">
+    <div class="auth-card">
+        <h1 class="russo" style="color:var(--pink); font-size: 20px; text-align: center; margin-bottom: 25px;">KUBUMIX FAMILY</h1>
+        <div id="err" style="color:#ff4444; font-size:11px; margin-bottom:15px; text-align: center;"></div>
+        <input type="email" id="l-email" style="width:100%; background:#000; border:1px solid #333; color:#fff; padding:12px; border-radius:10px; margin-bottom:10px; outline:none;" placeholder="Email">
+        <input type="password" id="l-pass" style="width:100%; background:#000; border:1px solid #333; color:#fff; padding:12px; border-radius:10px; margin-bottom:15px; outline:none;" placeholder="Пароль">
+        <button onclick="appAuth('login')" style="width:100%; background:var(--pink); color:#fff; border:none; padding:12px; border-radius:10px; font-weight:bold; cursor:pointer;" class="russo">УВІЙТИ</button>
+        <button onclick="appAuth('reg')" style="width:100%; background:none; border:none; color:var(--dim); margin-top:15px; font-size:12px; cursor:pointer;">Створити акаунт</button>
+    </div>
+</div>
+
+<header>
+    <div class="russo" style="font-size: 15px;">KUBUMIX <span style="color:var(--pink)">FAMILY</span></div>
+    <div class="header-status" id="user-display">завантаження...</div>
+</header>
+
+<div class="app-content hidden" id="app">
+    <div id="wall-content" style="display: flex; flex-direction: column; gap: 12px;"></div>
+</div>
+
+<div class="photo-preview-container" id="p-container">
+    <img id="p-preview" class="preview-img">
+    <span style="color:red; margin-left:10px;" onclick="cancelImg()">✕ Скасувати</span>
+</div>
+
+<div class="input-area hidden" id="nav">
+    <div class="input-container">
+        <label for="f-input" class="attach-btn">📎</label>
+        <input type="file" id="f-input" accept="image/*" class="hidden" onchange="previewImg(this)">
+        <textarea id="post-body" class="v-input" placeholder="Повідомлення..." rows="1" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
+    </div>
+    <button class="send-btn-circle" onclick="sendPost()">🚀</button>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+    import { getDatabase, ref, set, push, onValue, serverTimestamp, remove } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+    import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-storage.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyA_LwiXGQge-0zC1xqZFyeUmZWhKs4oYgY",
+        authDomain: "kubumixapp.firebaseapp.com",
+        databaseURL: "https://kubumixapp-default-rtdb.firebaseio.com",
+        projectId: "kubumixapp",
+        storageBucket: "kubumixapp.appspot.com"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+    const storage = getStorage(app);
+
+    let currentUserName = localStorage.getItem('kubu_name') || "";
+
+    window.previewImg = (input) => {
+        const prev = document.getElementById('p-preview');
+        const cont = document.getElementById('p-container');
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = (e) => { prev.src = e.target.result; cont.style.display = 'flex'; };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    window.cancelImg = () => {
+        document.getElementById('f-input').value = "";
+        document.getElementById('p-container').style.display = 'none';
+    }
+
+    window.appAuth = async (type) => {
+        const e = document.getElementById('l-email').value, p = document.getElementById('l-pass').value;
+        try {
+            if (type === 'login') await signInWithEmailAndPassword(auth, e, p);
+            else {
+                const n = prompt("Твоє ім'я?"); if(!n) return;
+                const res = await createUserWithEmailAndPassword(auth, e, p);
+                await set(ref(db, 'users/' + res.user.uid), { name: n });
+                localStorage.setItem('kubu_name', n);
+            }
+        } catch (err) { document.getElementById('err').innerText = "ПОМИЛКА"; }
+    };
+
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            document.getElementById('auth-gate').classList.add('hidden');
+            document.getElementById('app').classList.remove('hidden');
+            document.getElementById('nav').classList.remove('hidden');
+            
+            onValue(ref(db, 'users/' + user.uid), s => {
+                const userData = s.val();
+                if (userData) {
+                    currentUserName = userData.name;
+                    localStorage.setItem('kubu_name', currentUserName);
+                    document.getElementById('user-display').innerText = currentUserName + " онлайн";
+                }
+            });
+            loadWall();
+        } else {
+            document.getElementById('auth-gate').classList.remove('hidden');
+        }
+    });
+
+    window.sendPost = async () => {
+        const txt = document.getElementById('post-body').value;
+        const file = document.getElementById('f-input').files[0];
+        if (!txt.trim() && !file) return;
+
+        document.getElementById('loading').style.display = 'flex';
+        let imgUrl = null;
+
+        try {
+            if (file) {
+                const storageRef = sRef(storage, 'photos/' + Date.now());
+                await uploadBytes(storageRef, file);
+                imgUrl = await getDownloadURL(storageRef);
+            }
+            await push(ref(db, 'family/wall'), {
+                uid: auth.currentUser.uid,
+                author: currentUserName || "Сім'я",
+                text: txt,
+                image: imgUrl,
+                time: serverTimestamp()
+            });
+            document.getElementById('post-body').value = "";
+            document.getElementById('post-body').style.height = 'auto';
+            cancelImg();
+        } catch (e) { alert("Помилка"); }
+        document.getElementById('loading').style.display = 'none';
+        
+        // Автопрокрутка вниз
+        const app = document.getElementById('app');
+        app.scrollTo({ top: app.scrollHeight, behavior: 'smooth' });
+    };
+
+    window.deletePost = (id) => { if(confirm("Видалити повідомлення?")) remove(ref(db, 'family/wall/' + id)); };
+
+    function loadWall() {
+        onValue(ref(db, 'family/wall'), (snap) => {
+            const wall = document.getElementById('wall-content');
+            wall.innerHTML = "";
+            snap.forEach((child) => {
+                const d = child.val();
+                const isMy = d.uid === auth.currentUser.uid;
+                const time = d.time ? new Date(d.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : "";
+                
+                wall.innerHTML += `
+                    <div class="post ${isMy ? 'my-post' : 'other-post'}">
+                        ${!isMy ? `<div class="post-author">${d.author}</div>` : ''}
+                        <div class="post-text">${d.text}</div>
+                        ${d.image ? `<img src="${d.image}" class="post-img" onclick="window.open('${d.image}')">` : ''}
+                        <div class="post-footer">
+                            <span>${time}</span>
+                            ${isMy ? `<span class="btn-del" onclick="deletePost('${child.key}')">видалити</span>` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+            // Прокрутка до останнього повідомлення
+            const app = document.getElementById('app');
+            app.scrollTop = app.scrollHeight;
+        });
+    }
+    
+    window.logOut = () => { if(confirm("Вийти?")) { localStorage.clear(); auth.signOut(); } };
+</script>
+</body>
+</html>
