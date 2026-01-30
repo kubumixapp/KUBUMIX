@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>KUBUMIX FAMILY</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root { --pink: #ff007f; --bg: #0a0b10; --my-grad: linear-gradient(135deg, #ff007f 0%, #7000ff 100%); --other: #1c1c1e; }
+        
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            margin: 0; background: var(--bg); color: white; 
+            font-family: 'Roboto', sans-serif; height: 100dvh;
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+
+        .russo { font-family: 'Russo One', sans-serif; text-transform: uppercase; }
+
+        header { 
+            height: 60px; background: rgba(10,11,16,0.9); backdrop-filter: blur(10px);
+            display: flex; align-items: center; justify-content: center;
+            border-bottom: 1px solid #222; flex-shrink: 0; z-index: 10;
+        }
+
+        /* ЦЕЙ БЛОК ВИПРАВЛЯЄ ПРОКРУТКУ */
+        #app { 
+            flex: 1; 
+            overflow-y: auto; 
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch; /* Плавність для iOS */
+            padding: 20px 12px;
+            display: flex; 
+            flex-direction: column; 
+            gap: 12px;
+            background: radial-gradient(circle at top, #161b22, #0a0b10);
+        }
+
+        .post { 
+            max-width: 85%; padding: 12px; border-radius: 18px; 
+            position: relative; line-height: 1.4; word-wrap: break-word;
+            animation: pop 0.2s ease;
+        }
+        @keyframes pop { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        .my-post { align-self: flex-end; background: var(--my-grad); border-bottom-right-radius: 4px; }
+        .other-post { align-self: flex-start; background: var(--other); border-bottom-left-radius: 4px; border: 1px solid #333; }
+        
+        .sys-msg { align-self: center; font-size: 11px; color: #555; margin: 5px; }
+        .post-author { font-size: 11px; font-weight: bold; color: var(--pink); margin-bottom: 3px; }
+        .post-img { width: 100%; border-radius: 10px; margin-top: 8px; }
+
+        footer { 
+            background: #0d0d0f; border-top: 1px solid #222;
+            padding: 10px 10px 30px; flex-shrink: 0;
+        }
+
+        .input-row { display: flex; align-items: center; gap: 8px; }
+        .input-wrap { flex: 1; background: #1c1c1e; border-radius: 20px; padding: 10px 15px; display: flex; align-items: center; border: 1px solid #333; }
+        #post-body { flex: 1; background: none; border: none; color: white; font-size: 16px; outline: none; resize: none; max-height: 80px; }
+        
+        .send-btn { width: 45px; height: 45px; background: var(--pink); border-radius: 50%; border: none; color: white; font-size: 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px rgba(255, 0, 127, 0.4); }
+
+        .hidden { display: none !important; }
+
+        /* Кнопка активації сповіщень */
+        #notif-btn { 
+            position: fixed; top: 70px; left: 50%; transform: translateX(-50%);
+            background: #ff4444; color: white; padding: 10px 20px; 
+            border-radius: 20px; font-size: 12px; z-index: 100; border: none; font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<audio id="sound" src="https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3" preload="auto"></audio>
+
+<button id="notif-btn" onclick="enableNotifs()">⚠️ УВІМКНУТИ ЗВУК ТА СПОВІЩЕННЯ</button>
+
+<div id="auth-gate" style="position:fixed; inset:0; background:#000; z-index:2000; display:flex; align-items:center; justify-content:center;">
+    <div style="width:85%; max-width:300px; text-align:center;">
+        <h2 class="russo" style="color:var(--pink)">KUBUMIX</h2>
+        <input type="email" id="l-email" style="width:100%; padding:12px; border-radius:12px; background:#111; color:#fff; border:1px solid #333; margin-top:10px;" placeholder="Email">
+        <input type="password" id="l-pass" style="width:100%; padding:12px; border-radius:12px; background:#111; color:#fff; border:1px solid #333; margin-top:10px;" placeholder="Пароль">
+        <button onclick="appAuth('login')" style="width:100%; padding:15px; border-radius:12px; background:var(--pink); color:#fff; border:none; margin-top:20px; font-weight:bold;">УВІЙТИ</button>
+    </div>
+</div>
+
+<header><div class="russo">KUBUMIX <span style="color:var(--pink)">FAMILY</span></div></header>
+
+<div id="app" class="hidden"></div>
+
+<footer id="nav" class="hidden">
+    <div class="input-row">
+        <div class="input-wrap">
+            <label for="f-input" style="font-size:22px; margin-right:10px;">📎</label>
+            <input type="file" id="f-input" accept="image/*" class="hidden">
+            <textarea id="post-body" placeholder="Повідомлення..." rows="1"></textarea>
+        </div>
+        <button class="send-btn" onclick="sendPost()">🚀</button>
+    </div>
+</footer>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+    import { getDatabase, ref, push, onValue, serverTimestamp, onChildAdded } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+    import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-storage.js";
+
+    const cfg = {
+        apiKey: "AIzaSyA_LwiXGQge-0zC1xqZFyeUmZWhKs4oYgY",
+        authDomain: "kubumixapp.firebaseapp.com",
+        databaseURL: "https://kubumixapp-default-rtdb.firebaseio.com",
+        projectId: "kubumixapp",
+        storageBucket: "kubumixapp.appspot.com"
+    };
+
+    const fire = initializeApp(cfg);
+    const auth = getAuth(fire);
+    const db = getDatabase(fire);
+    const store = getStorage(fire);
+
+    let isInit = true;
+    let name = "Я";
+
+    window.enableNotifs = () => {
+        document.getElementById('sound').play().then(() => {
+            document.getElementById('sound').pause();
+            document.getElementById('notif-btn').classList.add('hidden');
+            if (Notification.permission !== "granted") Notification.requestPermission();
+        });
+    };
+
+    window.appAuth = (t) => {
+        const mail = document.getElementById('l-email').value, pass = document.getElementById('l-pass').value;
+        signInWithEmailAndPassword(auth, mail, pass).catch(e => alert("Помилка"));
+    };
+
+    onAuthStateChanged(auth, (u) => {
+        if(u) {
+            document.getElementById('auth-gate').classList.add('hidden');
+            document.getElementById('app').classList.remove('hidden');
+            document.getElementById('nav').classList.remove('hidden');
+            onValue(ref(db, 'users/' + u.uid), s => { if(s.val()) name = s.val().name; });
+            load();
+        }
+    });
+
+    window.sendPost = async () => {
+        const t = document.getElementById('post-body').value, f = document.getElementById('f-input').files[0];
+        if(!t.trim() && !f) return;
+        let url = null;
+        if(f) {
+            const sr = sRef(store, 'p/' + Date.now());
+            await uploadBytes(sr, f);
+            url = await getDownloadURL(sr);
+        }
+        await push(ref(db, 'family/wall'), { uid: auth.currentUser.uid, author: name, text: t, image: url, time: serverTimestamp() });
+        document.getElementById('post-body').value = "";
+        document.getElementById('f-input').value = "";
+    };
+
+    function load() {
+        const wallRef = ref(db, 'family/wall');
+
+        onChildAdded(wallRef, (snap) => {
+            if (isInit) return;
+            const d = snap.val();
+            if (d.uid !== auth.currentUser.uid) {
+                document.getElementById('sound').play();
+                if (Notification.permission === "granted") {
+                    new Notification("KUBUMIX", { body: d.author + ": " + d.text });
+                }
+            }
+        });
+
+        onValue(wallRef, (sn) => {
+            const app = document.getElementById('app');
+            app.innerHTML = "";
+            sn.forEach((c) => {
+                const d = c.val(), isMy = d.uid === auth.currentUser.uid;
+                const time = d.time ? new Date(d.time).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : "";
+                app.innerHTML += `
+                    <div class="post ${isMy ? 'my-post' : 'other-post'}">
+                        ${!isMy ? `<div class="post-author">${d.author}</div>` : ''}
+                        <div>${d.text}</div>
+                        ${d.image ? `<img src="${d.image}" class="post-img">` : ''}
+                        <div style="font-size:10px; opacity:0.5; text-align:right; margin-top:5px;">${time}</div>
+                    </div>
+                `;
+            });
+            isInit = false;
+            app.scrollTop = app.scrollHeight;
+        });
+    }
+</script>
+</body>
+</html>
