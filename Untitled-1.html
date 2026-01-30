@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>KUBUMIX МЕРЕЖА</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link href="https://fonts.googleapis.com/css2?family=Russo+One&display=swap" rel="stylesheet">
+    <style>
+        :root { --pink: #ff007f; --bg: #0d0f14; --card: #1a1d24; --text: #ffffff; --dim: #8a8d91; }
+        * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+        body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; }
+        .russo { font-family: 'Russo One', sans-serif; text-transform: uppercase; }
+
+        header { background: #161920; height: 50px; display: flex; align-items: center; padding: 0 15px; border-bottom: 2px solid var(--pink); position: fixed; width: 100%; top: 0; z-index: 1000; }
+        #auth-gate { position: fixed; inset: 0; background: var(--bg); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .auth-card { background: var(--card); width: 100%; max-width: 340px; padding: 30px; border: 1px solid #2b2d3c; }
+
+        .app-content { padding: 70px 10px 100px; max-width: 500px; margin: 0 auto; }
+        .card { background: var(--card); padding: 15px; margin-bottom: 20px; border-radius: 4px; }
+        
+        .v-input { width: 100%; background: #000; border: 1px solid #333; color: #fff; padding: 12px; font-size: 14px; margin-bottom: 10px; outline: none; }
+        .send-btn { background: var(--pink); color: #fff; border: none; padding: 14px; font-weight: bold; width: 100%; cursor: pointer; }
+
+        .post { background: var(--card); padding: 15px; margin-bottom: 12px; position: relative; border-left: 2px solid transparent; }
+        .my-post { border-left-color: var(--pink); }
+        .post-author { color: var(--pink); font-size: 14px; font-weight: bold; margin-bottom: 5px; }
+        .post-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+        
+        .btn-del { background: none; border: none; color: #ff4444; cursor: pointer; font-size: 12px; padding: 5px; }
+        .like-btn { cursor: pointer; font-size: 14px; color: var(--dim); }
+        .like-btn.active { color: var(--pink); }
+
+        footer { position: fixed; bottom: 0; width: 100%; height: 60px; background: #161920; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #282c34; z-index: 1000; }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<div id="auth-gate">
+    <div class="auth-card">
+        <h1 class="russo" style="color:var(--pink); font-size: 22px; margin:0 0 10px 0;">KUBUMIX ID</h1>
+        <div id="err" style="color:#ff4444; font-size:11px; margin-bottom:15px;"></div>
+        <input type="email" id="l-email" class="v-input" placeholder="ЕЛЕКТРОННА ПОШТА">
+        <input type="password" id="l-pass" class="v-input" placeholder="ПАРОЛЬ">
+        <button class="send-btn russo" onclick="appAuth('login')">УВІЙТИ</button>
+        <button class="russo" style="background:none; border:1px solid var(--pink); color:var(--pink); width:100%; padding:10px; margin-top:10px;" onclick="appAuth('reg')">РЕЄСТРАЦІЯ</button>
+    </div>
+</div>
+
+<header><div class="russo" style="font-size: 14px;">KUBUMIX <span style="color:var(--pink)">МЕРЕЖА</span></div></header>
+
+<div class="app-content hidden" id="app">
+    <div class="card">
+        <h2 class="russo" id="user-display" style="color:var(--pink); margin:0;">...</h2>
+        <button onclick="logOut()" style="background:none; border:none; color:var(--dim); font-size:10px; padding:0; margin-top:5px;">ВИЙТИ З СИСТЕМИ</button>
+    </div>
+
+    <div class="card">
+        <textarea id="post-body" class="v-input" style="height: 70px; resize: none;" placeholder="Напиши щось..."></textarea>
+        <button class="send-btn russo" onclick="sendPost()">ОПУБЛІКУВАТИ</button>
+    </div>
+
+    <div id="wall-content"></div>
+</div>
+
+<footer class="hidden" id="nav">
+    <div class="russo" style="color:var(--pink)">ГОЛОВНА</div>
+    <div class="russo" onclick="logOut()" style="opacity:0.5">ВИХІД</div>
+</footer>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+    import { getDatabase, ref, set, push, onValue, serverTimestamp, runTransaction, remove } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyA_LwiXGQge-0zC1xqZFyeUmZWhKs4oYgY",
+        authDomain: "kubumixapp.firebaseapp.com",
+        databaseURL: "https://kubumixapp-default-rtdb.firebaseio.com",
+        projectId: "kubumixapp",
+        storageBucket: "kubumixapp.firebasestorage.app"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    let currentUserName = "Анонім";
+
+    window.appAuth = async (type) => {
+        const e = document.getElementById('l-email').value, p = document.getElementById('l-pass').value;
+        try {
+            if (type === 'login') await signInWithEmailAndPassword(auth, e, p);
+            else {
+                const n = prompt("Твоє Ім'я:");
+                if(!n) return;
+                const res = await createUserWithEmailAndPassword(auth, e, p);
+                await set(ref(db, 'users/' + res.user.uid), { name: n });
+            }
+        } catch (e) { document.getElementById('err').innerText = e.message; }
+    };
+
+    window.logOut = () => signOut(auth);
+
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            document.getElementById('auth-gate').classList.add('hidden');
+            document.getElementById('app').classList.remove('hidden');
+            document.getElementById('nav').classList.remove('hidden');
+            onValue(ref(db, 'users/' + user.uid), s => {
+                currentUserName = s.val()?.name || "Анонім";
+                document.getElementById('user-display').innerText = currentUserName;
+            });
+            loadWall();
+        } else {
+            document.getElementById('auth-gate').classList.remove('hidden');
+        }
+    });
+
+    window.sendPost = () => {
+        const txt = document.getElementById('post-body').value;
+        if (!txt.trim()) return;
+        push(ref(db, 'family/wall'), {
+            uid: auth.currentUser.uid,
+            author: currentUserName,
+            text: txt,
+            time: serverTimestamp(),
+            likes: 0
+        });
+        document.getElementById('post-body').value = "";
+    };
+
+    window.deletePost = (id) => {
+        if(confirm("Видалити цей запис?")) remove(ref(db, 'family/wall/' + id));
+    };
+
+    window.toggleLike = (id) => {
+        runTransaction(ref(db, 'family/wall/' + id + '/likes'), c => (c || 0) + 1);
+    };
+
+    function loadWall() {
+        onValue(ref(db, 'family/wall'), (snap) => {
+            const wall = document.getElementById('wall-content');
+            wall.innerHTML = "";
+            snap.forEach((child) => {
+                const d = child.val();
+                const isMy = d.uid === auth.currentUser.uid;
+                wall.innerHTML = `
+                    <div class="post ${isMy ? 'my-post' : ''}">
+                        <div class="post-author russo">${d.author}</div>
+                        <div>${d.text}</div>
+                        <div class="post-footer">
+                            <div class="like-btn" onclick="toggleLike('${child.key}')">❤️ ${d.likes || 0}</div>
+                            ${isMy ? `<button class="btn-del" onclick="deletePost('${child.key}')">видалити</button>` : ''}
+                        </div>
+                    </div>
+                ` + wall.innerHTML;
+            });
+        });
+    }
+</script>
+</body>
+</html>
