@@ -1,30 +1,20 @@
-[03/08/2026] NEW UPDATE
-We have added a cool scrolling system and fixed bugs with the interface.
+[08.03.2026] BIG FIX AND GRAPHICS
+We've overhauled the engine! Now the FPS is more stable, and the scroll in the launcher flies. Added new orange accents to the interface - now KUBUMIX looks like a cannon.
 
-[03/05/2026] TECHNICAL WORK
-Today we are replacing servers, the launcher may work unstable.
+[06.03.2026] FIRST MAP TEST
+We've added three new cubic locations to the build: "Industrial Zone", "Hangar" and "Rooftops". Fly in, check for collisions and write where you got stuck - we'll fix it.
 
-[03/05/2026] TECHNICAL WORK
-Today we are replacing servers, the launcher may work unstable.
+[04.03.2026] SKINS SYSTEM
+The first custom skins are already in development. Now you can not just run around as a cube, but stand out. We're preparing an exclusive for those who have been with us since the beta.
 
-[03/08/2026] NEW UPDATE
-We have added a cool scrolling system and fixed bugs with the interface.
+[02.03.2026] MIGRATION TO NEW SERVERS
+We have finished setting up the server part. The ping should drop, and the hit registration should become clearer. If it throws out - please report it to support.
 
-[03/05/2026] TECHNICAL WORK
-Today we are replacing servers, the launcher may work unstable.
+[01.03.2026] PLANS FOR MARCH
+This month we plan to add:
+— Friends and party system;
+— Daily login rewards;
+— First battle pass (KUBUPASS).
 
-[03/05/2026] TECHNICAL WORK
-Today we are replacing servers, the launcher may work unstable.
-
-[03/05/2026] UPDATE 13203
-❄❄❄We wish the community of the game Blokada good health.❄❄❄
-
-Dear Players! On behalf of the Project Administration and the Developers team, we hasten to congratulate you on the upcoming holidays! In the New Year, we wish you only the kindest and brightest. We wish that your cherished dreams come true, and the goals you set were achieved! Good health to you! May the year leave behind everything bad and unpleasant. May all problems and worries remain last year!
-
-According to the good old tradition, at this time of year, the warmest update of the year awaits you in the game! Everything as you like! Here you will find snow, winter maps, and Easter eggs with an event and gifts! We would like to warn you right away that in the coming days at least one more update will be released with a number of game bugs fixed.
-
-vk.com/@squadfortress-new-y...
-
-Please write to the game's technical support about all bugs found related to the update. Small updates with fixes are possible in the coming days.
-
-Players who shared the news are selected randomly, so everyone has an equal chance. Share this news, and who knows, maybe you will be among the lucky ones! Before the next update is released, we will draw 5 prizes of 100 coins each (the results will be announced in the news with the update)! Maximum repost!
+[01.03.2026] SPECIAL STATUS
+Mar'yanka is the official muse of the project. Without her, this launcher wouldn't be so cool! ❤️
