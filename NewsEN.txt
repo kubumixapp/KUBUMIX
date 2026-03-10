@@ -1,5 +1,9 @@
 [03/08/2026] BIG FIX AND GRAPHICS
 We've overhauled the engine! Now the FPS is more stable, and the scroll in the launcher flies. Added new orange accents.
+We've overhauled the engine! Now the FPS is more stable, and the scroll in the launcher flies. Added new orange accents.
+We've overhauled the engine! Now the FPS is more stable, and the scroll in the launcher flies. Added new orange accents.
+We've overhauled the engine! Now the FPS is more stable, and the scroll in the launcher flies. Added new orange accents.
+We've overhauled the engine! Now the FPS is more stable, and the scroll in the launcher flies. Added new orange accents.
 
 [03/07/2026] NEW ARSENAL: "NEON" SERIES
 Added three weapon models with backlight. The K-47 rifle and "Vector" are now in the store.
@@ -298,3 +302,4 @@ Added the effect of steam from the mouths of players.
 
 [30.11.2025] START OF THE KUBUMIX PROJECT
 Today we wrote the first line of launcher code. The beginning of the legend!
+
