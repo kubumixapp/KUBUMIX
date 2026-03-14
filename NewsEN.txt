@@ -1,18 +1,18 @@
-[08.03.2026] BIG FIX AND GRAPHICS
+08.03.2026 BIG FIX AND GRAPHICS
 We've overhauled the engine! Now the FPS is much more stable, and the scrolling in the launcher just flies. We've also added the brand's orange accents to the interface.
 (This is a long story, it will be unfolded in the launcher)
 
-[07.03.2026] NEW ARSENAL: "NEON" SERIES
+07.03.2026 NEW ARSENAL: "NEON" SERIES
 Added three weapon models with dynamic lighting. The legendary K-47 rifle and the "Vector" submachine gun are now available in the store.
 
-[06.03.2026] FIRST MAP TEST
+06.03.2026 FIRST MAP TEST
 We've added three new locations to the test build: "Industrial Zone", "Hangar" and "Rooftops". A request to all testers - check the collision of walls and corners as much as possible!
 
-[03.05.2026] ANTI-CHEAT AND SECURITY
+03.05.2026 ANTI-CHEAT AND SECURITY
 A new package verification system has been implemented. Now the system automatically kicks you for using speedhack.
 
-[03.04.2026] SKIN SYSTEM
+03.04.2026 SKIN SYSTEM
 The first custom skins are already in active development. We are preparing a unique exclusive set for all alpha test participants.
 
-[03.03.2026] TECHNICAL WORK
+03.03.2026 TECHNICAL WORK
 A complete database optimization has been carried out. Now the login process to the game takes less than 1 second.
